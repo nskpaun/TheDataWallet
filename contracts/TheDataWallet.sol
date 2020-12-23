@@ -2,8 +2,6 @@ pragma solidity >=0.4.25 <0.7.0;
 
 contract TheDataWallet {
     mapping(address => uint256) balances;
-
-    mapping(uint256 => address) addressLookUp;
     mapping(address => uint256) activeTransactions;
 
     uint256 private monotonicIncrementer = 1;
@@ -21,10 +19,11 @@ contract TheDataWallet {
         balances[tx.origin] = 10000;
     }
 
-    function requestDelta(address receiver, uint256 amount, string memory modelJson)
-        public
-        returns (uint256 requestID)
-    {
+    function requestDelta(
+        address receiver,
+        uint256 amount,
+        string memory modelJson
+    ) public returns (uint256 requestID) {
         if (balances[msg.sender] < amount || activeTransactions[receiver] > 0)
             return 0;
         balances[msg.sender] -= amount;
@@ -32,11 +31,15 @@ contract TheDataWallet {
 
         uint256 generatedRequestID = monotonicIncrementer;
         monotonicIncrementer += 1;
-
-        addressLookUp[generatedRequestID] = receiver;
         activeTransactions[receiver] = generatedRequestID;
 
-        emit DeltaRequest(msg.sender, receiver, amount, generatedRequestID, modelJson);
+        emit DeltaRequest(
+            msg.sender,
+            receiver,
+            amount,
+            generatedRequestID,
+            modelJson
+        );
         return generatedRequestID;
     }
 
@@ -45,15 +48,12 @@ contract TheDataWallet {
         string memory deltaJson,
         uint256 requestID
     ) public returns (bool validFulfillment) {
-        if (
-            addressLookUp[requestID] != msg.sender ||
-            activeTransactions[msg.sender] != requestID
-        ) return false;
+        if (activeTransactions[msg.sender] != requestID) return false;
 
-        addressLookUp[requestID] = address(0);
         activeTransactions[msg.sender] = 0;
 
         emit Delta(msg.sender, receiver, deltaJson);
+
         return true;
     }
 

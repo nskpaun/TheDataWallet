@@ -1,0 +1,24 @@
+{
+    "scripts": {
+        "test": "tsc && truffle test",
+        "generate": "truffle compile && typechain --target truffle './build/**/*.json'"
+    },
+    "dependencies": {
+        "truffle": "^3.4.6",
+        "@babel/polyfill": "^7.4.0"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.4.0",
+        "@babel/preset-env": "^7.4.2",
+        "@babel/register": "^7.4.0",
+        "@types/chai": "^4.0.1",
+        "@types/mocha": "^2.2.41",
+        "truffle-typings": "^1.0.8",
+        "chai": "^4.1.0",
+        "mocha": "^3.4.2",
+        "ts-node": "^7.0.1",
+        "typechain": "^1.0.0",
+        "typechain-target-truffle": "^1.0.0",
+        "typescript": "^3.1.6"
+    }
+}

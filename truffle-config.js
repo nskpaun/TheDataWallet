@@ -1,4 +1,9 @@
+require('@babel/register');
+require('@babel/polyfill');
+require("ts-node/register");
+
 module.exports = {
+  test_file_extension_regexp: /.*\.ts$/,
   // Uncommenting the defaults below 
   // provides for an easier quick-start with Ganache.
   // You can also follow this format for other networks;

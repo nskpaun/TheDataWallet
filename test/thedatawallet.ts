@@ -1,8 +1,31 @@
 const TheDataWallet = artifacts.require("TheDataWallet");
 
-import { BigNumber } from 'bignumber.js'
+import {getTestClient} from "./TestDataWalletClient";
+import {getTestConsumer} from "./TestDataWalletConsumer";
+
 import { assert } from "chai";
 import "mocha";
+
+contract('TheDataWalletWorkflowSimple', (accounts) => {
+    it('should send delta and compute deltas correctly', async () => {
+        const theDataWalletInstance = await TheDataWallet.deployed();
+
+        const consumerAccount = accounts[0];
+        const clientAccount = accounts[1];
+
+        const testConsumer = getTestConsumer(consumerAccount, theDataWalletInstance);
+        const testClient = getTestClient(clientAccount, theDataWalletInstance);
+
+        await testConsumer.requestDelta(clientAccount);
+        await testClient.publishDelta();
+        await testConsumer.trainModel();
+
+        const resultModel =  testConsumer.getCurrentModel();
+
+        assert.equal(resultModel.m, 2);
+        assert.equal(resultModel.b, 3);
+    });
+});
 
 contract('TheDataWallet', (accounts) => {
     it('should put 10000 TheDataWallet in the first account', async () => {

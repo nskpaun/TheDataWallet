@@ -1,5 +1,4 @@
 import { TheDataWalletInstance } from "../types/truffle-contracts";
-import { DeltaRequest } from "../types/truffle-contracts/TheDataWallet";
 import { LinearModel } from "./LinearModel";
 import { trainLinearModel } from "./Trainer";
 
@@ -17,23 +16,20 @@ export function getTestClient(account: string, theDataWalletInstance: TheDataWal
     return {
         testAddresss: account,
         publishDelta: async () => {
-            const deltaRequests = await theDataWalletInstance.getPastEvents("DeltaRequest");
+            const request = await theDataWalletInstance.getActiveRequest({from: account});
+            const fromAddress = request[0];
+            const modelJSON = request[1];
+            const requestID = request[2];
 
-            if (!deltaRequests || deltaRequests.length < 1) {
-                return;
-            }
-            const eventData = deltaRequests[deltaRequests.length - 1];
-            const latestDeltaRequest: DeltaRequest = <DeltaRequest>{ name: "DeltaRequest", args: { ...eventData.returnValues } };
-
-            if (latestDeltaRequest.args._to !== account) {
+            if (!fromAddress || !modelJSON || ! requestID) {
                 return;
             }
 
-            const model = <LinearModel>JSON.parse(latestDeltaRequest.args._modelJson);
+            const model = <LinearModel>JSON.parse(modelJSON);
             const delta = trainLinearModel(model, data.height, data.weight);
 
             await theDataWalletInstance.publishDelta(
-                latestDeltaRequest.args._from, JSON.stringify(delta), latestDeltaRequest.args._requestID, { from: account });
+                fromAddress, JSON.stringify(delta), requestID, { from: account });
         }
     };
 };

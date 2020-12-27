@@ -1,18 +1,22 @@
 pragma solidity >=0.4.25;
 
 contract TheDataWallet {
+    struct DeltaRequest {
+        address from;
+        address to;
+        uint256 value;
+        uint256 requestID;
+        string modelJson;
+    }
+
     mapping(address => uint256) balances;
-    mapping(address => uint256) activeTransactions;
+
+    mapping(address => DeltaRequest) activeRequests;
 
     uint256 private monotonicIncrementer = 1;
+    DeltaRequest EMPTY_REQUEST = DeltaRequest(address(0),address(0),0,0,"");
 
-    event DeltaRequest(
-        address indexed _from,
-        address indexed _to,
-        uint256 _value,
-        uint256 _requestID,
-        string _modelJson
-    );
+
     event Delta(address indexed _from, address indexed _to, string _deltaJson);
 
     constructor() public {
@@ -24,16 +28,14 @@ contract TheDataWallet {
         uint256 amount,
         string memory modelJson
     ) public returns (uint256 requestID) {
-        if (balances[msg.sender] < amount || activeTransactions[receiver] > 0)
+        if (balances[msg.sender] < amount || activeRequests[receiver].requestID > 0)
             return 0;
         balances[msg.sender] -= amount;
         balances[receiver] += amount;
 
         uint256 generatedRequestID = monotonicIncrementer;
         monotonicIncrementer += 1;
-        activeTransactions[receiver] = generatedRequestID;
-
-        emit DeltaRequest(
+        activeRequests[receiver] = DeltaRequest(
             msg.sender,
             receiver,
             amount,
@@ -48,13 +50,16 @@ contract TheDataWallet {
         string memory deltaJson,
         uint256 requestID
     ) public returns (bool validFulfillment) {
-        if (activeTransactions[msg.sender] != requestID) return false;
+        if (activeRequests[msg.sender].requestID != requestID) return false;
 
-        activeTransactions[msg.sender] = 0;
-
+        activeRequests[msg.sender] = EMPTY_REQUEST;
         emit Delta(msg.sender, receiver, deltaJson);
-
         return true;
+    }
+
+    function getActiveRequest() public view returns (address, string memory, uint256) {
+       DeltaRequest memory activeRequest = activeRequests[msg.sender];
+       return (activeRequest.from, activeRequest.modelJson, activeRequest.requestID);
     }
 
     function getBalance(address addr) public view returns (uint256) {

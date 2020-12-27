@@ -22,23 +22,7 @@ export interface Delta {
   };
 }
 
-export interface DeltaRequest {
-  name: "DeltaRequest";
-  args: {
-    _from: string;
-    _to: string;
-    _value: BN;
-    _requestID: BN;
-    _modelJson: string;
-    0: string;
-    1: string;
-    2: BN;
-    3: BN;
-    4: string;
-  };
-}
-
-type AllEvents = Delta | DeltaRequest;
+type AllEvents = Delta;
 
 export interface TheDataWalletInstance extends Truffle.ContractInstance {
   requestDelta: {
@@ -94,6 +78,10 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  getActiveRequest(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<{ 0: string; 1: string; 2: BN }>;
 
   getBalance(addr: string, txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
@@ -174,6 +162,10 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
         txDetails?: Truffle.TransactionDetails
       ): Promise<number>;
     };
+
+    getActiveRequest(
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<{ 0: string; 1: string; 2: BN }>;
 
     getBalance(
       addr: string,

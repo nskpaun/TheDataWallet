@@ -77,14 +77,14 @@ contract('TheDataWallet', (accounts) => {
 
         // Request a delta from first account to second.
         const amount = 10;
-        const requestID = (await TheDataWalletInstance.requestDelta.call(accountTwo, amount, "{}", { from: accountOne })).toNumber();
-        await TheDataWalletInstance.requestDelta(accountTwo, amount, "{}", { from: accountOne });
+        const requestID = (await TheDataWalletInstance.requestDelta.call(accountTwo, amount, "{}", 1, 1, { from: accountOne })).toNumber();
+        await TheDataWalletInstance.requestDelta(accountTwo, amount, "{}", 1, 1, { from: accountOne });
         assert.equal(requestID, 1, "Did not receive expected request ID");
 
         // Publish delta for transaction ID.
 
-        const successfulPublish = await TheDataWalletInstance.publishDelta.call(accountOne, "{}", requestID, { from: accountTwo });
-        await TheDataWalletInstance.publishDelta(accountOne, "{}", requestID, { from: accountTwo });
+        const successfulPublish = await TheDataWalletInstance.publishDelta.call(accountOne, "{}", requestID, 1, 1, { from: accountTwo });
+        await TheDataWalletInstance.publishDelta(accountOne, "{}", requestID, 1, 1, { from: accountTwo });
         assert.isTrue(successfulPublish, "Delta wasn't successfully published");
 
         // Get balances of first and second account after the transactions.
@@ -104,21 +104,23 @@ contract('TheDataWallet', (accounts) => {
         const amount = 10;
 
         // Request a delta from first account to third.
-        const requestID = (await TheDataWalletInstance.requestDelta.call(accountThree, amount, "{1}", { from: accountOne })).toNumber();
-        await TheDataWalletInstance.requestDelta(accountThree, amount, "{1}", { from: accountOne });
+        const requestID = (await TheDataWalletInstance.requestDelta.call(accountThree, amount, "{33}", 1, 1, { from: accountOne })).toNumber();
+        await TheDataWalletInstance.requestDelta(accountThree, amount, "{33}", 1, 1, { from: accountOne });
         assert.equal(requestID, 2, "Did not receive expected request ID");
 
         // Request a delta from second account to third.
-        const badRequestID = (await TheDataWalletInstance.requestDelta.call(accountThree, 10, "{}", { from: accountTwo })).toNumber();
+        const badRequestID = (await TheDataWalletInstance.requestDelta.call(accountThree, 10, "{}", 1, 1, { from: accountTwo })).toNumber();
         assert.equal(badRequestID, 0, "Expected an invalid requestID");
 
         // Publish delta for transaction ID.
-        const successfulPublish = await TheDataWalletInstance.publishDelta.call(accountOne, "{}", requestID, { from: accountThree });
-        await TheDataWalletInstance.publishDelta(accountOne, "{}", requestID, { from: accountThree });
+        const successfulPublish = await TheDataWalletInstance.publishDelta.call(accountOne, "{}", requestID, 1, 1, { from: accountThree });
+        await TheDataWalletInstance.publishDelta(accountOne, "{}", requestID, 1, 1, { from: accountThree });
         assert.isTrue(successfulPublish, "Delta wasn't successfully published");
 
+
+
         // Make another request.
-        const goodRequestID = (await TheDataWalletInstance.requestDelta.call(accountThree, 0, "{2}", { from: accountTwo })).toNumber();
+        const goodRequestID = (await TheDataWalletInstance.requestDelta.call(accountThree, 0, "{2}", 1, 1, { from: accountTwo })).toNumber();
         assert.equal(goodRequestID, 3, "Expected a valid requestID after fulfilling previous transaction");
     });
 });

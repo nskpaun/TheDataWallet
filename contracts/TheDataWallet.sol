@@ -1,4 +1,5 @@
 pragma solidity >=0.4.25;
+pragma experimental ABIEncoderV2;
 
 contract TheDataWallet {
     struct DeltaRequest {
@@ -7,13 +8,33 @@ contract TheDataWallet {
         uint256 amount;
         uint256 requestID;
         string modelJson;
+        TrainingMetaData metaData;
     }
-    DeltaRequest EMPTY_REQUEST = DeltaRequest(address(0), address(0), 0, 0, "");
+
+    struct TrainingMetaData {
+        uint32 numberOfFeatures;
+        TrainingType trainingType;
+    }
+
+    enum TrainingType {
+        EMPTY,
+        STOCHASTIC_GRADIENT_DESCENT,
+        GRADIENT_BOOSTING_DECISION_TREE
+    }
+    DeltaRequest EMPTY_REQUEST =
+        DeltaRequest(
+            address(0),
+            address(0),
+            0,
+            0,
+            "",
+            TrainingMetaData(0, TrainingType.EMPTY)
+        );
 
     mapping(address => uint256) balances;
     mapping(address => DeltaRequest) activeRequests;
     uint256 private monotonicIncrementer = 1;
-    
+
     event RequestWasOutbid(
         uint256 _requestID,
         uint256 _oldAmount,
@@ -28,7 +49,9 @@ contract TheDataWallet {
         address indexed _from,
         address indexed _to,
         string _deltaJson,
-        uint256 _amountPaid
+        uint256 _amountPaid,
+        TrainingMetaData _metaData,
+        bool _didTrainingMetaDataMatch
     );
 
     constructor() public {
@@ -38,7 +61,9 @@ contract TheDataWallet {
     function requestDelta(
         address receiver,
         uint256 amount,
-        string memory modelJson
+        string memory modelJson,
+        TrainingType trainingType,
+        uint32 numberOfFeatures
     ) public returns (uint256 requestID) {
         if (balances[msg.sender] < amount) {
             return 0;
@@ -68,7 +93,8 @@ contract TheDataWallet {
             receiver,
             amount,
             generatedRequestID,
-            modelJson
+            modelJson,
+            TrainingMetaData(numberOfFeatures, trainingType)
         );
         return generatedRequestID;
     }
@@ -76,16 +102,25 @@ contract TheDataWallet {
     function publishDelta(
         address receiver,
         string memory deltaJson,
-        uint256 requestID
+        uint256 requestID,
+        TrainingType trainingType,
+        uint32 numberOfFeatures
     ) public returns (bool validFulfillment) {
-        if (activeRequests[msg.sender].requestID != requestID) return false;
+        DeltaRequest memory request = activeRequests[msg.sender];
+        if (request.requestID != requestID) return false;
+
+        bool didTrainingMetaDataMatchRequest =
+            request.metaData.trainingType == trainingType &&
+                request.metaData.numberOfFeatures == numberOfFeatures;
 
         activeRequests[msg.sender] = EMPTY_REQUEST;
         emit Delta(
             msg.sender,
             receiver,
             deltaJson,
-            activeRequests[msg.sender].amount
+            request.amount,
+            TrainingMetaData(numberOfFeatures, trainingType),
+            didTrainingMetaDataMatchRequest
         );
         return true;
     }

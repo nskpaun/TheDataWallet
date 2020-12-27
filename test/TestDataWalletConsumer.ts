@@ -9,10 +9,10 @@ interface TestDataWalletConsumer {
 }
 
 export function getTestConsumer(account: string, theDataWalletInstance: TheDataWalletInstance): TestDataWalletConsumer {
-    let currentModel: LinearModel = {intercept: -300, slope: 6.7, learningRate: 0.005};
+    let currentModel: LinearModel = { intercept: -300, slope: 6.7, learningRate: 0.005 };
     return {
         requestDelta: async (clientAccount: string, amount: number = 20) => {
-            await theDataWalletInstance.requestDelta(clientAccount, amount, JSON.stringify(currentModel), { from: account });
+            await theDataWalletInstance.requestDelta(clientAccount, amount, JSON.stringify(currentModel), 1, 1, { from: account });
         },
         trainModel: async () => {
             const deltas = await theDataWalletInstance.getPastEvents("Delta", {
@@ -31,8 +31,8 @@ export function getTestConsumer(account: string, theDataWalletInstance: TheDataW
                 return;
             }
 
-            const newModel = <LinearModelDelta> JSON.parse(latestDelta.args._deltaJson);
-            currentModel = {...newModel, learningRate: currentModel.learningRate*0.99};
+            const newModel = <LinearModelDelta>JSON.parse(latestDelta.args._deltaJson);
+            currentModel = { ...newModel, learningRate: currentModel.learningRate * 0.99 };
         },
         getCurrentModel: () => {
             return currentModel

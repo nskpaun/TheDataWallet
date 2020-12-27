@@ -2,17 +2,23 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import { EscrowContract } from "./Escrow";
 import { MigrationsContract } from "./Migrations";
+import { TDWEscrowContract } from "./TDWEscrow";
 import { TheDataWalletContract } from "./TheDataWallet";
 
 declare global {
   namespace Truffle {
     interface Artifacts {
+      require(name: "Escrow"): EscrowContract;
       require(name: "Migrations"): MigrationsContract;
+      require(name: "TDWEscrow"): TDWEscrowContract;
       require(name: "TheDataWallet"): TheDataWalletContract;
     }
   }
 }
 
+export { EscrowContract, EscrowInstance } from "./Escrow";
 export { MigrationsContract, MigrationsInstance } from "./Migrations";
+export { TDWEscrowContract, TDWEscrowInstance } from "./TDWEscrow";
 export { TheDataWalletContract, TheDataWalletInstance } from "./TheDataWallet";

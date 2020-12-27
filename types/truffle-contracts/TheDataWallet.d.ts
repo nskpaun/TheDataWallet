@@ -17,10 +17,14 @@ export interface Delta {
     _to: string;
     _deltaJson: string;
     _amountPaid: BN;
+    _metaData: { numberOfFeatures: BN; trainingType: BN };
+    _didTrainingMetaDataMatch: boolean;
     0: string;
     1: string;
     2: string;
     3: BN;
+    4: { numberOfFeatures: BN; trainingType: BN };
+    5: boolean;
   };
 }
 
@@ -56,24 +60,32 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       receiver: string,
       amount: number | BN | string,
       modelJson: string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<Truffle.TransactionResponse<AllEvents>>;
     call(
       receiver: string,
       amount: number | BN | string,
       modelJson: string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<BN>;
     sendTransaction(
       receiver: string,
       amount: number | BN | string,
       modelJson: string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<string>;
     estimateGas(
       receiver: string,
       amount: number | BN | string,
       modelJson: string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
@@ -83,24 +95,32 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       receiver: string,
       deltaJson: string,
       requestID: number | BN | string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<Truffle.TransactionResponse<AllEvents>>;
     call(
       receiver: string,
       deltaJson: string,
       requestID: number | BN | string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<boolean>;
     sendTransaction(
       receiver: string,
       deltaJson: string,
       requestID: number | BN | string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<string>;
     estimateGas(
       receiver: string,
       deltaJson: string,
       requestID: number | BN | string,
+      trainingType: number | BN | string,
+      numberOfFeatures: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
@@ -163,24 +183,32 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
         receiver: string,
         amount: number | BN | string,
         modelJson: string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<Truffle.TransactionResponse<AllEvents>>;
       call(
         receiver: string,
         amount: number | BN | string,
         modelJson: string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<BN>;
       sendTransaction(
         receiver: string,
         amount: number | BN | string,
         modelJson: string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<string>;
       estimateGas(
         receiver: string,
         amount: number | BN | string,
         modelJson: string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<number>;
     };
@@ -190,24 +218,32 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
         receiver: string,
         deltaJson: string,
         requestID: number | BN | string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<Truffle.TransactionResponse<AllEvents>>;
       call(
         receiver: string,
         deltaJson: string,
         requestID: number | BN | string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<boolean>;
       sendTransaction(
         receiver: string,
         deltaJson: string,
         requestID: number | BN | string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<string>;
       estimateGas(
         receiver: string,
         deltaJson: string,
         requestID: number | BN | string,
+        trainingType: number | BN | string,
+        numberOfFeatures: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<number>;
     };

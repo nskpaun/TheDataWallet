@@ -2,23 +2,17 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { ConvertLibContract } from "./ConvertLib";
-import { MetaCoinContract } from "./MetaCoin";
 import { MigrationsContract } from "./Migrations";
 import { TheDataWalletContract } from "./TheDataWallet";
 
 declare global {
   namespace Truffle {
     interface Artifacts {
-      require(name: "ConvertLib"): ConvertLibContract;
-      require(name: "MetaCoin"): MetaCoinContract;
       require(name: "Migrations"): MigrationsContract;
       require(name: "TheDataWallet"): TheDataWalletContract;
     }
   }
 }
 
-export { ConvertLibContract, ConvertLibInstance } from "./ConvertLib";
-export { MetaCoinContract, MetaCoinInstance } from "./MetaCoin";
 export { MigrationsContract, MigrationsInstance } from "./Migrations";
 export { TheDataWalletContract, TheDataWalletInstance } from "./TheDataWallet";

@@ -60,4 +60,15 @@ contract TheDataWallet {
     function getBalance(address addr) public view returns (uint256) {
         return balances[addr];
     }
+
+    function transfer(address addr, uint256 amount) public returns (bool) {
+        if (balances[msg.sender] < amount) {
+            return false;
+        }
+
+        balances[msg.sender] -= amount;
+        balances[addr] += amount;
+
+        return true;
+    }
 }

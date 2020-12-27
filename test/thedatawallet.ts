@@ -1,29 +1,59 @@
 const TheDataWallet = artifacts.require("TheDataWallet");
 
-import {getTestClient} from "./TestDataWalletClient";
-import {getTestConsumer} from "./TestDataWalletConsumer";
+import { getTestClient } from "./TestDataWalletClient";
+import { getTestConsumer } from "./TestDataWalletConsumer";
 
 import { assert } from "chai";
 import "mocha";
+import { getTestData } from "./TestVectors";
 
 contract('TheDataWalletWorkflowSimple', (accounts) => {
     it('should send delta and compute deltas correctly', async () => {
         const theDataWalletInstance = await TheDataWallet.deployed();
 
+        const testData = getTestData();
         const consumerAccount = accounts[0];
         const clientAccount = accounts[1];
 
         const testConsumer = getTestConsumer(consumerAccount, theDataWalletInstance);
-        const testClient = getTestClient(clientAccount, theDataWalletInstance);
+        const testClient = getTestClient(clientAccount, theDataWalletInstance, testData[0]);
 
         await testConsumer.requestDelta(clientAccount);
         await testClient.publishDelta();
         await testConsumer.trainModel();
 
-        const resultModel =  testConsumer.getCurrentModel();
+        const resultModel = testConsumer.getCurrentModel();
 
-        assert.equal(resultModel.m, 2);
-        assert.equal(resultModel.b, 3);
+        assert.equal(resultModel.slope, 6.511);
+        assert.equal(resultModel.intercept, -312.663);
+    });
+});
+
+contract('TheDataWallet_SingleConsumer_FederatedStochasticGradientDescent', (accounts) => {
+    it('should send delta and compute deltas correctly', async () => {
+        const theDataWalletInstance = await TheDataWallet.deployed();
+
+        const testData = getTestData();
+        const consumerAccount = accounts[0];
+
+        const testClients = testData.map((testDatum, index) => {
+            return getTestClient(accounts[index + 1], theDataWalletInstance, testDatum);
+        })
+
+
+        const testConsumer = getTestConsumer(consumerAccount, theDataWalletInstance);
+
+        for (let x = 0; x < 10; x++) {
+            for (const testClient of testClients) {
+                await testConsumer.requestDelta(testClient.testAddresss);
+                await testClient.publishDelta();
+                await testConsumer.trainModel();
+            }
+        }
+
+        const resultModel = testConsumer.getCurrentModel();
+        assert.equal(Math.trunc(resultModel.slope * 100), 692);
+        assert.equal(Math.trunc(resultModel.intercept), -322);
     });
 });
 

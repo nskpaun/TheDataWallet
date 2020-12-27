@@ -1,19 +1,15 @@
 import { TheDataWalletInstance } from "../types/truffle-contracts";
 import { Delta } from "../types/truffle-contracts/TheDataWallet";
+import { LinearModel, LinearModelDelta } from "./LinearModel";
 
 interface TestDataWalletConsumer {
     requestDelta: (clientAccount: string) => Promise<void>
     trainModel: () => Promise<void>
-    getCurrentModel: () => Model
-}
-
-interface Model {
-    m: number,
-    b: number,
+    getCurrentModel: () => LinearModel
 }
 
 export function getTestConsumer(account: string, theDataWalletInstance: TheDataWalletInstance): TestDataWalletConsumer {
-    let currentModel: Model = {m: 1, b: 0};
+    let currentModel: LinearModel = {intercept: -300, slope: 6.7, learningRate: 0.005};
     return {
         requestDelta: async (clientAccount: string) => {
             await theDataWalletInstance.requestDelta(clientAccount, 20, JSON.stringify(currentModel), { from: account });
@@ -35,8 +31,8 @@ export function getTestConsumer(account: string, theDataWalletInstance: TheDataW
                 return;
             }
 
-            const newModel = <Model> JSON.parse(latestDelta.args._deltaJson);
-            currentModel = {m: newModel.m, b: newModel.b};
+            const newModel = <LinearModelDelta> JSON.parse(latestDelta.args._deltaJson);
+            currentModel = {...newModel, learningRate: currentModel.learningRate*0.99};
         },
         getCurrentModel: () => {
             return currentModel

@@ -22,6 +22,18 @@ export interface Delta {
   };
 }
 
+export interface RequestWasDenied {
+  name: "RequestWasDenied";
+  args: {
+    _requestID: BN;
+    _oldAmount: BN;
+    _desiredAmount: BN;
+    0: BN;
+    1: BN;
+    2: BN;
+  };
+}
+
 export interface RequestWasOutbid {
   name: "RequestWasOutbid";
   args: {
@@ -34,7 +46,7 @@ export interface RequestWasOutbid {
   };
 }
 
-type AllEvents = Delta | RequestWasOutbid;
+type AllEvents = Delta | RequestWasDenied | RequestWasOutbid;
 
 export interface TheDataWalletInstance extends Truffle.ContractInstance {
   requestDelta: {
@@ -87,6 +99,29 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       receiver: string,
       deltaJson: string,
       requestID: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  denyActiveRequest: {
+    (
+      requestID: number | BN | string,
+      desiredAmount: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse<AllEvents>>;
+    call(
+      requestID: number | BN | string,
+      desiredAmount: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<boolean>;
+    sendTransaction(
+      requestID: number | BN | string,
+      desiredAmount: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      requestID: number | BN | string,
+      desiredAmount: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
@@ -171,6 +206,29 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
         receiver: string,
         deltaJson: string,
         requestID: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<number>;
+    };
+
+    denyActiveRequest: {
+      (
+        requestID: number | BN | string,
+        desiredAmount: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<Truffle.TransactionResponse<AllEvents>>;
+      call(
+        requestID: number | BN | string,
+        desiredAmount: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<boolean>;
+      sendTransaction(
+        requestID: number | BN | string,
+        desiredAmount: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      estimateGas(
+        requestID: number | BN | string,
+        desiredAmount: number | BN | string,
         txDetails?: Truffle.TransactionDetails
       ): Promise<number>;
     };

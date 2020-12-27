@@ -8,7 +8,7 @@ import "mocha";
 import { getTestData } from "./TestVectors";
 import { TheDataWalletInstance } from "../types/truffle-contracts";
 
-contract('TheDataWallet_DenialOfServiceAttack', (accounts) => {
+contract('TheDataWallet_PriceDynamics', (accounts) => {
     let theDataWalletInstance: TheDataWalletInstance
     let consumerAccount: string;
     let denialOfServiceAttackerAccount: string;
@@ -22,7 +22,7 @@ contract('TheDataWallet_DenialOfServiceAttack', (accounts) => {
         // Give attacker some currency to work with.
         theDataWalletInstance.transfer(denialOfServiceAttackerAccount, 5000, { from: consumerAccount })
     });
-    it('should have a mechanism to stop actors trying to disrupt normal exchange by spamming at low prices',
+    it('should have a mechanism for consumers to stop actors trying to disrupt normal exchange by spamming at low prices',
         async () => {
             const testData = getTestData();
             const testConsumer = getTestConsumer(consumerAccount, theDataWalletInstance);
@@ -45,5 +45,30 @@ contract('TheDataWallet_DenialOfServiceAttack', (accounts) => {
             assert.equal(clientAccountBalance, 100);
             assert.equal(consumerBalance, 4900);
             assert.equal(denialOfServiceAttackerBalance, 5000);
+        });
+    it('should allow clients to deny a request.',
+        async () => {
+            const testData = getTestData();
+            const testConsumer = getTestConsumer(consumerAccount, theDataWalletInstance);
+            const testClient = getTestClient(clientAccount, theDataWalletInstance, testData[0]);
+
+            await testConsumer.requestDelta(clientAccount, 50);
+
+            let clientAccountBalance = (await theDataWalletInstance.getBalance(testClient.testAddresss)).toNumber();
+            let consumerBalance = (await theDataWalletInstance.getBalance(accounts[0])).toNumber();
+
+            assert.equal(clientAccountBalance, 150);
+            assert.equal(consumerBalance, 4850);
+
+            await testClient.denyActiveRequest(100);
+
+            clientAccountBalance = (await theDataWalletInstance.getBalance(testClient.testAddresss)).toNumber();
+            consumerBalance = (await theDataWalletInstance.getBalance(accounts[0])).toNumber();
+
+            assert.equal(clientAccountBalance, 100);
+            assert.equal(consumerBalance, 4900);
+
+            const pastEvents = await theDataWalletInstance.getPastEvents("RequestWasDenied");
+            assert.equal(pastEvents[0].returnValues._desiredAmount, 100);
         });
 });

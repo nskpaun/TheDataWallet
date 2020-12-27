@@ -3,8 +3,9 @@ import { LinearModel } from "./LinearModel";
 import { trainLinearModel } from "./Trainer";
 
 interface TestDataWalletClient {
-    publishDelta: () => Promise<void>
-    testAddresss: string
+    publishDelta: () => Promise<void>;
+    denyActiveRequest: (desiredAmount: number) => Promise<void>;
+    testAddresss: string;
 }
 
 type Data = {
@@ -30,6 +31,12 @@ export function getTestClient(account: string, theDataWalletInstance: TheDataWal
 
             await theDataWalletInstance.publishDelta(
                 fromAddress, JSON.stringify(delta), requestID, { from: account });
-        }
+        },
+        denyActiveRequest: async (desiredAmount: number) => {
+            const request = await theDataWalletInstance.getActiveRequest({from: account});
+            const requestID = request[2];
+
+            await theDataWalletInstance.denyActiveRequest(requestID, desiredAmount, {from: account});
+        },
     };
 };

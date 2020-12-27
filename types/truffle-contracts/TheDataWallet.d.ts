@@ -22,7 +22,19 @@ export interface Delta {
   };
 }
 
-type AllEvents = Delta;
+export interface RequestWasOutbid {
+  name: "RequestWasOutbid";
+  args: {
+    _requestID: BN;
+    _oldAmount: BN;
+    _newAmount: BN;
+    0: BN;
+    1: BN;
+    2: BN;
+  };
+}
+
+type AllEvents = Delta | RequestWasOutbid;
 
 export interface TheDataWalletInstance extends Truffle.ContractInstance {
   requestDelta: {

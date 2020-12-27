@@ -4,7 +4,7 @@ contract TheDataWallet {
     struct DeltaRequest {
         address from;
         address to;
-        uint256 value;
+        uint256 amount;
         uint256 requestID;
         string modelJson;
     }
@@ -17,6 +17,7 @@ contract TheDataWallet {
     DeltaRequest EMPTY_REQUEST = DeltaRequest(address(0),address(0),0,0,"");
 
 
+    event RequestWasOutbid(uint256 _requestID, uint256 _oldAmount, uint256 _newAmount);
     event Delta(address indexed _from, address indexed _to, string _deltaJson);
 
     constructor() public {
@@ -28,8 +29,24 @@ contract TheDataWallet {
         uint256 amount,
         string memory modelJson
     ) public returns (uint256 requestID) {
-        if (balances[msg.sender] < amount || activeRequests[receiver].requestID > 0)
+        if (balances[msg.sender] < amount){
             return 0;
+        }
+
+        DeltaRequest memory activeRequest = activeRequests[receiver];
+
+        if (activeRequest.requestID > 0 && activeRequest.amount >= amount) {
+            // Active request at higher price.
+            return 0;
+        }
+
+        if (activeRequest.amount > 0) {
+            uint256 oldAmount = activeRequest.amount;
+            balances[receiver] -= oldAmount;
+            balances[activeRequest.from] += oldAmount;
+            emit RequestWasOutbid(activeRequest.requestID, oldAmount, amount);
+        }
+
         balances[msg.sender] -= amount;
         balances[receiver] += amount;
 

@@ -8,11 +8,6 @@ contract TDWEscrow {
     address payable public buyer;
     address payable public seller;
     
-    modifier onlyBuyer() {
-        require(msg.sender == buyer, "Only buyer can call this method");
-        _;
-    }
-    
     constructor(address payable _buyer, address payable _seller) public {
         buyer = _buyer;
         seller = _seller;
@@ -23,13 +18,13 @@ contract TDWEscrow {
         currState = State.AWAITING_DELIVERY;
     }
     
-    function confirmDelivery() public {
+    function confirmDelivery() external {
         require(currState == State.AWAITING_DELIVERY, "Cannot confirm delivery");
         seller.transfer(address(this).balance);
         currState = State.COMPLETE;
     }
 
-    function refundBuyer() public {
+    function refundBuyer() external {
         require(currState == State.AWAITING_DELIVERY, "Cannot refund buyer");
         buyer.transfer(address(this).balance);
         currState = State.COMPLETE;

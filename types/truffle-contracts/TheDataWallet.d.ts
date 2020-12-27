@@ -150,29 +150,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
 
   getBalance(addr: string, txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
-  transfer: {
-    (
-      addr: string,
-      amount: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse<AllEvents>>;
-    call(
-      addr: string,
-      amount: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<boolean>;
-    sendTransaction(
-      addr: string,
-      amount: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      addr: string,
-      amount: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
-
   methods: {
     requestDelta: {
       (
@@ -271,29 +248,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       addr: string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<BN>;
-
-    transfer: {
-      (
-        addr: string,
-        amount: number | BN | string,
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<Truffle.TransactionResponse<AllEvents>>;
-      call(
-        addr: string,
-        amount: number | BN | string,
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<boolean>;
-      sendTransaction(
-        addr: string,
-        amount: number | BN | string,
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<string>;
-      estimateGas(
-        addr: string,
-        amount: number | BN | string,
-        txDetails?: Truffle.TransactionDetails
-      ): Promise<number>;
-    };
   };
 
   getPastEvents(event: string): Promise<EventData[]>;

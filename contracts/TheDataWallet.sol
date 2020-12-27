@@ -35,7 +35,6 @@ contract TheDataWallet {
             new TDWEscrow(address(0), address(0))
         );
 
-    mapping(address => uint256) balances;
     mapping(address => DeltaRequest) activeRequests;
     uint256 private monotonicIncrementer = 1;
 
@@ -58,9 +57,7 @@ contract TheDataWallet {
         bool _didTrainingMetaDataMatch
     );
 
-    constructor() public {
-        balances[tx.origin] = 10000;
-    }
+    constructor() public {}
 
     function requestDelta(
         address payable receiver,
@@ -68,26 +65,25 @@ contract TheDataWallet {
         TrainingType trainingType,
         uint32 numberOfFeatures
     ) public payable returns (uint256 requestID) {
-        require(msg.value > 0, "Not funded hahaha!");
         uint256 amount = msg.value;
         DeltaRequest memory activeRequest = activeRequests[receiver];
 
+        // Verify request.
         if (activeRequest.requestID > 0 && activeRequest.amount >= amount) {
-            // Active request at higher price.
             return 0;
         }
 
+        // Cancel current request if new amount is higher.
         if (activeRequest.amount > 0) {
             uint256 oldAmount = activeRequest.amount;
             activeRequest.escrow.refundBuyer();
             emit RequestWasOutbid(activeRequest.requestID, oldAmount, amount);
         }
 
+        // Create Request.
         uint256 generatedRequestID = monotonicIncrementer;
         monotonicIncrementer += 1;
-
         TDWEscrow escrow = new TDWEscrow(msg.sender, receiver);
-        escrow.deposit.value(amount)();
 
         activeRequests[receiver] = DeltaRequest(
             msg.sender,
@@ -98,6 +94,9 @@ contract TheDataWallet {
             TrainingMetaData(numberOfFeatures, trainingType),
             escrow
         );
+
+        // Deposit value to escrow.
+        escrow.deposit.value(amount)();
         return generatedRequestID;
     }
 
@@ -108,14 +107,15 @@ contract TheDataWallet {
         TrainingType trainingType,
         uint32 numberOfFeatures
     ) public returns (bool validFulfillment) {
+
+        // Only publish an active request.
         DeltaRequest memory request = activeRequests[msg.sender];
         if (request.requestID != requestID) return false;
 
+        // Create and publish delta.
         bool didTrainingMetaDataMatchRequest =
             request.metaData.trainingType == trainingType &&
                 request.metaData.numberOfFeatures == numberOfFeatures;
-
-        request.escrow.confirmDelivery();
 
         activeRequests[msg.sender] = EMPTY_REQUEST;
         emit Delta(
@@ -126,6 +126,9 @@ contract TheDataWallet {
             TrainingMetaData(numberOfFeatures, trainingType),
             didTrainingMetaDataMatchRequest
         );
+
+        // Deliver funds to delta sender.
+        request.escrow.confirmDelivery();
         return true;
     }
 
@@ -134,18 +137,26 @@ contract TheDataWallet {
         returns (bool success)
     {
         DeltaRequest memory activeRequest = activeRequests[msg.sender];
+
+        // Can only cancel your own request.
         if (activeRequest.requestID != requestID) {
             return false;
         }
 
+        // Cannot make smaller counter-offer.
         if (desiredAmount <= activeRequest.amount) {
             return false;
         }
 
-        activeRequest.escrow.refundBuyer();
+        // Clear active request.
         activeRequests[msg.sender] = EMPTY_REQUEST;
 
+        // Publish request denied event.
         emit RequestWasDenied(requestID, activeRequest.amount, desiredAmount);
+
+        // Refund delta requester.
+        activeRequest.escrow.refundBuyer();
+
         return true;
     }
 
@@ -168,16 +179,5 @@ contract TheDataWallet {
 
     function getBalance(address addr) public view returns (uint256) {
         return addr.balance;
-    }
-
-    function transfer(address addr, uint256 amount) public returns (bool) {
-        if (balances[msg.sender] < amount) {
-            return false;
-        }
-
-        balances[msg.sender] -= amount;
-        balances[addr] += amount;
-
-        return true;
     }
 }

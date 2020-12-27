@@ -19,9 +19,6 @@ contract('TheDataWallet_PriceDynamics', (accounts) => {
         consumerAccount = accounts[0];
         denialOfServiceAttackerAccount = accounts[1];
         clientAccount = accounts[2];
-
-        // Give attacker some currency to work with.
-        theDataWalletInstance.transfer(denialOfServiceAttackerAccount, 5000, { from: consumerAccount })
     });
     it('should have a mechanism for consumers to stop actors trying to disrupt normal exchange by spamming at low prices',
         async () => {

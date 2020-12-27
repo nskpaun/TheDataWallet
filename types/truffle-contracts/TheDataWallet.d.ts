@@ -16,9 +16,11 @@ export interface Delta {
     _from: string;
     _to: string;
     _deltaJson: string;
+    _amountPaid: BN;
     0: string;
     1: string;
     2: string;
+    3: BN;
   };
 }
 

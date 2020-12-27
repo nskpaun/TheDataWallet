@@ -19,7 +19,7 @@ contract TheDataWallet {
 
     event RequestWasOutbid(uint256 _requestID, uint256 _oldAmount, uint256 _newAmount);
     event RequestWasDenied(uint256 _requestID, uint256 _oldAmount, uint256 _desiredAmount);
-    event Delta(address indexed _from, address indexed _to, string _deltaJson);
+    event Delta(address indexed _from, address indexed _to, string _deltaJson, uint256 _amountPaid);
 
     constructor() public {
         balances[tx.origin] = 10000;
@@ -71,7 +71,7 @@ contract TheDataWallet {
         if (activeRequests[msg.sender].requestID != requestID) return false;
 
         activeRequests[msg.sender] = EMPTY_REQUEST;
-        emit Delta(msg.sender, receiver, deltaJson);
+        emit Delta(msg.sender, receiver, deltaJson, activeRequests[msg.sender].amount);
         return true;
     }
 

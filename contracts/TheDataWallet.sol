@@ -8,18 +8,28 @@ contract TheDataWallet {
         uint256 requestID;
         string modelJson;
     }
+    DeltaRequest EMPTY_REQUEST = DeltaRequest(address(0), address(0), 0, 0, "");
 
     mapping(address => uint256) balances;
-
     mapping(address => DeltaRequest) activeRequests;
-
     uint256 private monotonicIncrementer = 1;
-    DeltaRequest EMPTY_REQUEST = DeltaRequest(address(0),address(0),0,0,"");
-
-
-    event RequestWasOutbid(uint256 _requestID, uint256 _oldAmount, uint256 _newAmount);
-    event RequestWasDenied(uint256 _requestID, uint256 _oldAmount, uint256 _desiredAmount);
-    event Delta(address indexed _from, address indexed _to, string _deltaJson, uint256 _amountPaid);
+    
+    event RequestWasOutbid(
+        uint256 _requestID,
+        uint256 _oldAmount,
+        uint256 _newAmount
+    );
+    event RequestWasDenied(
+        uint256 _requestID,
+        uint256 _oldAmount,
+        uint256 _desiredAmount
+    );
+    event Delta(
+        address indexed _from,
+        address indexed _to,
+        string _deltaJson,
+        uint256 _amountPaid
+    );
 
     constructor() public {
         balances[tx.origin] = 10000;
@@ -30,7 +40,7 @@ contract TheDataWallet {
         uint256 amount,
         string memory modelJson
     ) public returns (uint256 requestID) {
-        if (balances[msg.sender] < amount){
+        if (balances[msg.sender] < amount) {
             return 0;
         }
 
@@ -71,11 +81,19 @@ contract TheDataWallet {
         if (activeRequests[msg.sender].requestID != requestID) return false;
 
         activeRequests[msg.sender] = EMPTY_REQUEST;
-        emit Delta(msg.sender, receiver, deltaJson, activeRequests[msg.sender].amount);
+        emit Delta(
+            msg.sender,
+            receiver,
+            deltaJson,
+            activeRequests[msg.sender].amount
+        );
         return true;
     }
 
-    function denyActiveRequest(uint256 requestID, uint256 desiredAmount) public returns (bool success) {
+    function denyActiveRequest(uint256 requestID, uint256 desiredAmount)
+        public
+        returns (bool success)
+    {
         DeltaRequest memory activeRequest = activeRequests[msg.sender];
         if (activeRequest.requestID != requestID) {
             return false;
@@ -93,9 +111,21 @@ contract TheDataWallet {
         return true;
     }
 
-    function getActiveRequest() public view returns (address, string memory, uint256) {
-       DeltaRequest memory activeRequest = activeRequests[msg.sender];
-       return (activeRequest.from, activeRequest.modelJson, activeRequest.requestID);
+    function getActiveRequest()
+        public
+        view
+        returns (
+            address,
+            string memory,
+            uint256
+        )
+    {
+        DeltaRequest memory activeRequest = activeRequests[msg.sender];
+        return (
+            activeRequest.from,
+            activeRequest.modelJson,
+            activeRequest.requestID
+        );
     }
 
     function getBalance(address addr) public view returns (uint256) {

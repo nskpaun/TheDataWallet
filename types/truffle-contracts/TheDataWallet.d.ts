@@ -58,7 +58,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
   requestDelta: {
     (
       receiver: string,
-      amount: number | BN | string,
       modelJson: string,
       trainingType: number | BN | string,
       numberOfFeatures: number | BN | string,
@@ -66,7 +65,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
     ): Promise<Truffle.TransactionResponse<AllEvents>>;
     call(
       receiver: string,
-      amount: number | BN | string,
       modelJson: string,
       trainingType: number | BN | string,
       numberOfFeatures: number | BN | string,
@@ -74,7 +72,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
     ): Promise<BN>;
     sendTransaction(
       receiver: string,
-      amount: number | BN | string,
       modelJson: string,
       trainingType: number | BN | string,
       numberOfFeatures: number | BN | string,
@@ -82,7 +79,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
     ): Promise<string>;
     estimateGas(
       receiver: string,
-      amount: number | BN | string,
       modelJson: string,
       trainingType: number | BN | string,
       numberOfFeatures: number | BN | string,
@@ -181,7 +177,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
     requestDelta: {
       (
         receiver: string,
-        amount: number | BN | string,
         modelJson: string,
         trainingType: number | BN | string,
         numberOfFeatures: number | BN | string,
@@ -189,7 +184,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       ): Promise<Truffle.TransactionResponse<AllEvents>>;
       call(
         receiver: string,
-        amount: number | BN | string,
         modelJson: string,
         trainingType: number | BN | string,
         numberOfFeatures: number | BN | string,
@@ -197,7 +191,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       ): Promise<BN>;
       sendTransaction(
         receiver: string,
-        amount: number | BN | string,
         modelJson: string,
         trainingType: number | BN | string,
         numberOfFeatures: number | BN | string,
@@ -205,7 +198,6 @@ export interface TheDataWalletInstance extends Truffle.ContractInstance {
       ): Promise<string>;
       estimateGas(
         receiver: string,
-        amount: number | BN | string,
         modelJson: string,
         trainingType: number | BN | string,
         numberOfFeatures: number | BN | string,

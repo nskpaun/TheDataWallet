@@ -12,7 +12,6 @@ import { Delta } from "../types/truffle-contracts/TheDataWallet";
 contract('TheDataWallet_PriceDynamics', (accounts) => {
     let theDataWalletInstance: TheDataWalletInstance
     let consumerAccount: string;
-    let denialOfServiceAttackerAccount: string;
     let clientAccount: string;
     before('Set up instance and actors', async () => {
         theDataWalletInstance = await TheDataWallet.deployed();

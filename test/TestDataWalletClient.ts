@@ -17,7 +17,7 @@ export function getTestClient(account: string, theDataWalletInstance: TheDataWal
     return {
         testAddresss: account,
         publishDelta: async (trainingType = 1, numberOfFeatures = 1) => {
-            const request = await theDataWalletInstance.getActiveRequest({ from: account });
+            const request = await theDataWalletInstance.getActiveRequest({ from: account , gasPrice: 0});
             const fromAddress = request[0];
             const modelJSON = request[1];
             const requestID = request[2];
@@ -30,13 +30,13 @@ export function getTestClient(account: string, theDataWalletInstance: TheDataWal
             const delta = trainLinearModel(model, data.height, data.weight);
 
             await theDataWalletInstance.publishDelta(
-                fromAddress, JSON.stringify(delta), requestID, trainingType, numberOfFeatures, { from: account });
+                fromAddress, JSON.stringify(delta), requestID, trainingType, numberOfFeatures, { from: account, gasPrice: 0 });
         },
         denyActiveRequest: async (desiredAmount: number) => {
-            const request = await theDataWalletInstance.getActiveRequest({ from: account });
+            const request = await theDataWalletInstance.getActiveRequest({ from: account, gasPrice: 0 });
             const requestID = request[2];
 
-            await theDataWalletInstance.denyActiveRequest(requestID, desiredAmount, { from: account });
+            await theDataWalletInstance.denyActiveRequest(requestID, desiredAmount, { from: account, gasPrice: 0 });
         },
     };
 };

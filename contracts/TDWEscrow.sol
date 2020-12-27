@@ -5,7 +5,7 @@ contract TDWEscrow {
     
     State public currState;
     
-    address public buyer;
+    address payable public buyer;
     address payable public seller;
     
     modifier onlyBuyer() {
@@ -13,19 +13,25 @@ contract TDWEscrow {
         _;
     }
     
-    constructor(address _buyer, address payable _seller) public {
+    constructor(address payable _buyer, address payable _seller) public {
         buyer = _buyer;
         seller = _seller;
     }
     
-    function deposit() onlyBuyer external payable {
+    function deposit() external payable {
         require(currState == State.AWAITING_PAYMENT, "Already paid");
         currState = State.AWAITING_DELIVERY;
     }
     
-    function confirmDelivery() onlyBuyer external {
+    function confirmDelivery() public {
         require(currState == State.AWAITING_DELIVERY, "Cannot confirm delivery");
         seller.transfer(address(this).balance);
+        currState = State.COMPLETE;
+    }
+
+    function refundBuyer() public {
+        require(currState == State.AWAITING_DELIVERY, "Cannot refund buyer");
+        buyer.transfer(address(this).balance);
         currState = State.COMPLETE;
     }
 }

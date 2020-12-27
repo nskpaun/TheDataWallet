@@ -1,6 +1,7 @@
 import { TheDataWalletInstance } from "../types/truffle-contracts";
 import { Delta } from "../types/truffle-contracts/TheDataWallet";
 import { LinearModel, LinearModelDelta } from "./LinearModel";
+import * as BN from "bn.js";
 
 interface TestDataWalletConsumer {
     requestDelta: (clientAccount: string, amount?: number) => Promise<void>
@@ -12,7 +13,8 @@ export function getTestConsumer(account: string, theDataWalletInstance: TheDataW
     let currentModel: LinearModel = { intercept: -300, slope: 6.7, learningRate: 0.005 };
     return {
         requestDelta: async (clientAccount: string, amount: number = 20) => {
-            await theDataWalletInstance.requestDelta(clientAccount, amount, JSON.stringify(currentModel), 1, 1, { from: account });
+            await theDataWalletInstance.requestDelta(
+                clientAccount, JSON.stringify(currentModel), 1, 1, { from: account, value: new BN(amount), gasPrice: 0 });
         },
         trainModel: async () => {
             const deltas = await theDataWalletInstance.getPastEvents("Delta", {

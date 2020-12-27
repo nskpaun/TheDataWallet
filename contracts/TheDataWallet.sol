@@ -1,6 +1,8 @@
 pragma solidity >=0.4.25;
 pragma experimental ABIEncoderV2;
 
+import "./TDWEscrow.sol";
+
 contract TheDataWallet {
     struct DeltaRequest {
         address from;
@@ -9,6 +11,7 @@ contract TheDataWallet {
         uint256 requestID;
         string modelJson;
         TrainingMetaData metaData;
+        TDWEscrow escrow;
     }
 
     struct TrainingMetaData {
@@ -28,7 +31,8 @@ contract TheDataWallet {
             0,
             0,
             "",
-            TrainingMetaData(0, TrainingType.EMPTY)
+            TrainingMetaData(0, TrainingType.EMPTY),
+            new TDWEscrow(address(0), address(0))
         );
 
     mapping(address => uint256) balances;
@@ -59,16 +63,13 @@ contract TheDataWallet {
     }
 
     function requestDelta(
-        address receiver,
-        uint256 amount,
+        address payable receiver,
         string memory modelJson,
         TrainingType trainingType,
         uint32 numberOfFeatures
-    ) public returns (uint256 requestID) {
-        if (balances[msg.sender] < amount) {
-            return 0;
-        }
-
+    ) public payable returns (uint256 requestID) {
+        require(msg.value > 0, "Not funded hahaha!");
+        uint256 amount = msg.value;
         DeltaRequest memory activeRequest = activeRequests[receiver];
 
         if (activeRequest.requestID > 0 && activeRequest.amount >= amount) {
@@ -78,23 +79,24 @@ contract TheDataWallet {
 
         if (activeRequest.amount > 0) {
             uint256 oldAmount = activeRequest.amount;
-            balances[receiver] -= oldAmount;
-            balances[activeRequest.from] += oldAmount;
+            activeRequest.escrow.refundBuyer();
             emit RequestWasOutbid(activeRequest.requestID, oldAmount, amount);
         }
 
-        balances[msg.sender] -= amount;
-        balances[receiver] += amount;
-
         uint256 generatedRequestID = monotonicIncrementer;
         monotonicIncrementer += 1;
+
+        TDWEscrow escrow = new TDWEscrow(msg.sender, receiver);
+        escrow.deposit.value(amount)();
+
         activeRequests[receiver] = DeltaRequest(
             msg.sender,
             receiver,
             amount,
             generatedRequestID,
             modelJson,
-            TrainingMetaData(numberOfFeatures, trainingType)
+            TrainingMetaData(numberOfFeatures, trainingType),
+            escrow
         );
         return generatedRequestID;
     }
@@ -112,6 +114,8 @@ contract TheDataWallet {
         bool didTrainingMetaDataMatchRequest =
             request.metaData.trainingType == trainingType &&
                 request.metaData.numberOfFeatures == numberOfFeatures;
+
+        request.escrow.confirmDelivery();
 
         activeRequests[msg.sender] = EMPTY_REQUEST;
         emit Delta(
@@ -138,8 +142,7 @@ contract TheDataWallet {
             return false;
         }
 
-        balances[msg.sender] -= activeRequest.amount;
-        balances[activeRequest.from] += activeRequest.amount;
+        activeRequest.escrow.refundBuyer();
         activeRequests[msg.sender] = EMPTY_REQUEST;
 
         emit RequestWasDenied(requestID, activeRequest.amount, desiredAmount);
@@ -164,7 +167,7 @@ contract TheDataWallet {
     }
 
     function getBalance(address addr) public view returns (uint256) {
-        return balances[addr];
+        return addr.balance;
     }
 
     function transfer(address addr, uint256 amount) public returns (bool) {

@@ -1,4 +1,4 @@
-pragma solidity >=0.4.25 <0.7.0;
+pragma solidity >=0.4.25;
 
 contract TheDataWallet {
     mapping(address => uint256) balances;

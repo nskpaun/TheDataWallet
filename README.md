@@ -1,5 +1,5 @@
 
-<a href="https://raw.githubusercontent.com/nskpaun/TheDataWallet/main/TheDataWalletExplainedv1.html" download>
+<a href="https://raw.githubusercontent.com/nskpaun/TheDataWallet/main/TheDataWalletExplainedv1.html" download="TheDataWalletExplained">
   Download full ReadMe
 </a>
 

@@ -1,4 +1,7 @@
 
+<a href="https://raw.githubusercontent.com/nskpaun/TheDataWallet/main/TheDataWalletExplainedv1.html" download>
+  Download full ReadMe
+</a>
 
 # The Data Wallet
 
